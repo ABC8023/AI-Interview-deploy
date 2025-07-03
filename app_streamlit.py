@@ -17,9 +17,9 @@ os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load model
-MODEL_PATH = "mobilenet_micro_expression_classifier.keras"
+MODEL_PATH = "mobilenet_micro_expression_classifier.h5"
 try:
-    model = tf.keras.models.load_model(MODEL_PATH)
+    model = tf.h5.models.load_model(MODEL_PATH)
     logging.info("✅ Model loaded successfully.")
 except Exception as e:
     logging.error(f"❌ Failed to load model: {e}")
