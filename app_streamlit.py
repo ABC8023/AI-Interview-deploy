@@ -17,9 +17,10 @@ os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load model
-MODEL_PATH = "mobilenet_micro_expression_classifier.h5"
+MODEL_PATH = "mobilenet_micro_expression_classifier.h5" 
+
 try:
-    model = tf.h5.models.load_model(MODEL_PATH)
+    model = tf.h5.models.load_model(MODEL_PATH, compile=False)
     logging.info("✅ Model loaded successfully.")
 except Exception as e:
     logging.error(f"❌ Failed to load model: {e}")
@@ -28,6 +29,7 @@ except Exception as e:
 if model is None:
     st.error("❌ Model failed to load. Cannot proceed.")
     st.stop()
+
 
 # Define emotions
 emotions = ["disgust", "fear", "happiness", "repression", "sadness", "surprise"]
