@@ -25,6 +25,10 @@ except Exception as e:
     logging.error(f"❌ Failed to load model: {e}")
     model = None
 
+if model is None:
+    st.error("❌ Model failed to load. Cannot proceed.")
+    st.stop()
+
 # Define emotions
 emotions = ["disgust", "fear", "happiness", "repression", "sadness", "surprise"]
 
