@@ -49,10 +49,6 @@ def convert_to_mp4(input_path, output_path):
 
 # Process video
 def process_video(video_path, output_mp4_path):
-    if model is None:
-        logging.error("❌ Model is not loaded. Cannot process video.")
-        return None
-
     cap = cv2.VideoCapture(video_path)
     frames = []
 
@@ -71,30 +67,21 @@ def process_video(video_path, output_mp4_path):
     out = cv2.VideoWriter(output_mp4_path, cv2.VideoWriter_fourcc(*'mp4v'), 10, (width, height))
 
     for i, frame in enumerate(frames):
-        label = "error"
         try:
-            # Ensure frame is RGB
-            if len(frame.shape) == 2 or frame.shape[2] == 1:
-                frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
-            else:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-            resized = cv2.resize(frame, (64, 64))
-            normalized = resized.astype("float32") / 255.0
-            input_tensor = np.expand_dims(normalized, axis=0)  # (1, 64, 64, 3)
-
-            predictions = model.predict(input_tensor, verbose=0)
-            pred_class = np.argmax(predictions[0])
-            label = emotions[pred_class]
+            resized = cv2.resize(frame, (64, 64))                         # Resize to model input
+            normalized = resized.astype("float32") / 255.0               # Normalize
+            input_tensor = np.expand_dims(normalized, axis=0)           # Add batch dimension
+            predictions = model.predict(input_tensor, verbose=0)        # Get prediction
+            pred_class = np.argmax(predictions[0])                      # Get class index
+            label = emotions[pred_class]                                # Map to emotion label
         except Exception as e:
-            logging.error(f"⚠️ Prediction error at frame {i}: {e}")
+            logging.error(f"Prediction error at frame {i}: {e}")
             label = "error"
 
-        # Draw emotion label on original frame (in BGR again)
-        frame_bgr = cv2.cvtColor(resized, cv2.COLOR_RGB2BGR)
-        cv2.putText(frame_bgr, f"Emotion: {label}", (50, 50), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
-        out.write(frame_bgr)
+        # Annotate and write frame
+        cv2.putText(frame, f"Emotion: {label}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 
+                    1, (0, 255, 255), 2)
+        out.write(frame)
 
     out.release()
     return output_mp4_path if os.path.exists(output_mp4_path) else None
